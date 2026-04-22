@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FLAMES — Relationship Destiny</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;0,700;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --fire1:#ff6a00;--fire2:#ee0979;--gold:#ffd580;
+  --bg:#0a0508;--surface:rgba(255,255,255,0.05);
+  --border:rgba(255,120,40,0.2);--text:#ffe8d6;
+  --muted:rgba(255,200,150,0.5);
+  --sans:'DM Sans',sans-serif;--serif:'Cormorant Garamond',serif;
+}
+
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);overflow-x:hidden}
+
+#canvas{position:fixed;inset:0;pointer-events:none;z-index:0}
+
+body::before{
+  content:'';position:fixed;bottom:-20vh;left:50%;transform:translateX(-50%);
+  width:90vw;height:70vh;pointer-events:none;z-index:1;
+  background:radial-gradient(ellipse at center bottom,rgba(255,80,0,0.2) 0%,rgba(238,9,121,0.08) 40%,transparent 70%);
+}
+
+/* ── Main app ── */
+#app{
+  position:relative;z-index:10;min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:40px 20px 60px;
+}
+
+.hero{text-align:center;margin-bottom:44px;animation:fadeDown 0.9s ease both}
+
+.flames-title{display:flex;justify-content:center;gap:clamp(4px,2vw,16px);margin-bottom:12px}
+.flames-title span{
+  font-family:var(--serif);font-size:clamp(3rem,11vw,6.5rem);font-weight:700;line-height:1;
+  background:linear-gradient(180deg,var(--gold) 0%,var(--fire1) 55%,var(--fire2) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 0 20px rgba(255,100,0,0.55));
+  animation:flicker 3s ease-in-out infinite;cursor:default;
+}
+.flames-title span:nth-child(1){animation-delay:0s}
+.flames-title span:nth-child(2){animation-delay:.35s}
+.flames-title span:nth-child(3){animation-delay:.7s}
+.flames-title span:nth-child(4){animation-delay:1.05s}
+.flames-title span:nth-child(5){animation-delay:1.4s}
+.flames-title span:nth-child(6){animation-delay:1.75s}
+
+@keyframes flicker{
+  0%,100%{filter:drop-shadow(0 0 20px rgba(255,100,0,0.55))}
+  45%{filter:drop-shadow(0 0 36px rgba(255,160,0,0.9)) drop-shadow(0 0 55px rgba(255,60,0,0.5))}
+  50%{filter:drop-shadow(0 0 10px rgba(255,100,0,0.25))}
+  55%{filter:drop-shadow(0 0 36px rgba(255,160,0,0.85))}
+}
+
+.tagline{font-family:var(--serif);font-style:italic;font-size:clamp(0.82rem,2.5vw,1rem);font-weight:300;color:var(--muted);letter-spacing:.12em}
+
+.card{
+  width:100%;max-width:500px;
+  background:var(--surface);border:1px solid var(--border);border-radius:24px;
+  padding:clamp(24px,5vw,44px) clamp(20px,5vw,40px);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  box-shadow:0 0 0 1px rgba(255,80,0,0.05),0 24px 80px rgba(0,0,0,0.55),inset 0 1px 0 rgba(255,150,80,0.08);
+  animation:fadeUp 0.9s 0.15s ease both;position:relative;overflow:hidden;
+}
+.card::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,160,60,0.45),transparent);
+}
+
+.card-heading{
+  font-size:0.65rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:22px;display:flex;align-items:center;gap:10px;
+}
+.card-heading::before,.card-heading::after{content:'';flex:1;height:1px;background:var(--border)}
+
+.field{margin-bottom:14px}
+.field label{display:block;font-size:0.65rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+.field input{
+  width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,120,40,0.2);
+  border-radius:12px;padding:14px 16px;color:var(--text);
+  font-family:var(--serif);font-size:1.1rem;font-weight:300;
+  outline:none;transition:border-color .25s,box-shadow .25s,background .25s;
+}
+.field input::placeholder{color:rgba(255,200,150,0.18);font-style:italic}
+.field input:focus{
+  border-color:rgba(255,120,40,0.5);background:rgba(255,100,0,0.06);
+  box-shadow:0 0 0 3px rgba(255,100,0,0.1),0 4px 18px rgba(255,80,0,0.1);
+}
+
+.sep{display:flex;align-items:center;justify-content:center;height:26px;color:var(--muted);font-size:.9rem}
+.sep-icon{animation:spinSlow 8s linear infinite;display:block}
+@keyframes spinSlow{to{transform:rotate(360deg)}}
+
+.cta{
+  width:100%;margin-top:24px;padding:15px;border-radius:14px;border:none;cursor:pointer;
+  font-family:var(--serif);font-size:1.1rem;font-weight:600;letter-spacing:.04em;color:#fff;
+  background:linear-gradient(135deg,#ff6a00 0%,#ee0979 100%);
+  box-shadow:0 4px 28px rgba(255,80,0,0.38),0 0 0 1px rgba(255,150,0,0.15);
+  transition:transform .2s,box-shadow .2s,filter .2s;position:relative;overflow:hidden;
+}
+.cta::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.13),transparent);opacity:0;transition:opacity .2s}
+.cta:hover::before{opacity:1}
+.cta:hover{transform:translateY(-2px);box-shadow:0 8px 38px rgba(255,80,0,0.5);filter:brightness(1.04)}
+.cta:active{transform:scale(0.98)}
+.cta:disabled{opacity:0.5;cursor:not-allowed;pointer-events:none}
+
+.err{min-height:18px;font-size:.74rem;color:#ff7070;text-align:center;margin-top:8px}
+
+.strip{display:flex;justify-content:center;gap:7px;margin-top:22px}
+.sl{
+  width:40px;height:40px;border-radius:10px;border:1px solid var(--border);
+  background:rgba(255,255,255,0.03);display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);font-size:1.15rem;font-weight:600;color:rgba(255,200,150,0.22);
+}
+
+/* ── Loading overlay ── */
+#loading{
+  position:fixed;inset:0;z-index:60;background:rgba(10,5,8,0.96);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+  opacity:0;pointer-events:none;transition:opacity .35s;
+}
+#loading.on{opacity:1;pointer-events:all}
+
+.ring{width:72px;height:72px;position:relative}
+.ring::before,.ring::after{
+  content:'';position:absolute;inset:0;border-radius:50%;border:2.5px solid transparent;
+}
+.ring::before{border-top-color:var(--fire1);animation:spin .9s linear infinite}
+.ring::after{border-bottom-color:var(--fire2);inset:9px;animation:spin .65s linear infinite reverse}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.ring-icon{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-size:1.8rem;animation:hb .65s ease-in-out infinite;
+}
+@keyframes hb{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.28)}}
+
+.load-txt{font-family:var(--serif);font-style:italic;font-size:1.05rem;color:var(--muted);animation:blink 1.4s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:.45}50%{opacity:1}}
+
+/* ── Result screen ── */
+#result{
+  position:fixed;inset:0;z-index:50;background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;
+  padding:28px 20px 40px;overflow-y:auto;
+  opacity:0;pointer-events:none;transition:opacity .45s;
+}
+#result.on{opacity:1;pointer-events:all}
+
+#result::before{
+  content:'';position:fixed;top:40%;left:50%;transform:translate(-50%,-50%);
+  width:65vw;height:65vw;max-width:480px;max-height:480px;
+  border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0;
+  background:var(--glow,rgba(255,80,0,0.13));transition:background .8s;
+}
+
+.rw{
+  position:relative;z-index:2;text-align:center;
+  width:100%;max-width:460px;margin:0 auto;
+  display:flex;flex-direction:column;align-items:center;
+}
+
+/* Result elements — start hidden */
+.r-emoji{font-size:clamp(3.2rem,11vw,5rem);display:block;margin-bottom:4px;opacity:0}
+.r-word{
+  font-family:var(--serif);font-size:clamp(2.4rem,9vw,4.6rem);font-weight:700;line-height:1.05;
+  background:linear-gradient(180deg,var(--gold) 0%,var(--fire1) 60%,var(--fire2) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 0 22px rgba(255,120,0,0.4));opacity:0;
+}
+.r-pair{font-family:var(--serif);font-size:clamp(.9rem,3vw,1.15rem);font-weight:300;font-style:italic;color:rgba(255,200,150,0.7);margin-top:8px;opacity:0}
+.r-msg{font-size:clamp(.78rem,2.3vw,.86rem);color:var(--muted);line-height:1.8;max-width:310px;margin:10px auto 0;opacity:0}
+
+/* Animation classes */
+@keyframes popIn{from{opacity:0;transform:scale(0) rotate(-8deg)}to{opacity:1;transform:scale(1) rotate(0)}}
+@keyframes slideUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeInEl{from{opacity:0}to{opacity:1}}
+
+.anim-pop   {animation:popIn   .6s cubic-bezier(.34,1.56,.64,1) forwards}
+.anim-slide {animation:slideUp .5s ease forwards}
+.anim-fade  {animation:fadeInEl .5s ease forwards}
+
+/* ── Wheel ── */
+.wheel-row{display:flex;justify-content:center;gap:clamp(6px,2vw,10px);margin:24px 0 5px}
+.wl{
+  width:clamp(38px,9vw,52px);height:clamp(38px,9vw,52px);
+  border-radius:10px;border:1.5px solid rgba(255,120,40,0.18);
+  background:rgba(255,255,255,0.04);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);font-size:clamp(1.1rem,3.5vw,1.5rem);font-weight:700;
+  color:rgba(255,200,120,0.28);
+  transition:all .28s cubic-bezier(.34,1.56,.64,1);
+}
+.wl.lit{
+  background:linear-gradient(135deg,#ff6a00,#ee0979);color:#fff;border-color:transparent;
+  box-shadow:0 0 22px rgba(255,100,0,0.5),0 6px 18px rgba(0,0,0,0.4);
+  transform:scale(1.16) translateY(-4px);
+}
+.wl.out{opacity:.1;transform:scale(0.8);color:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.04)}
+.wl.win{
+  background:linear-gradient(135deg,var(--gold),var(--fire1));color:#160800;border-color:transparent;
+  box-shadow:0 0 42px rgba(255,180,0,0.6),0 10px 30px rgba(0,0,0,0.5);
+  transform:scale(1.22) translateY(-5px);
+}
+.w-cap{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-align:center;min-height:18px;margin-bottom:20px;transition:all .25s}
+
+/* ── Share card ── */
+.sc{width:100%;max-width:360px;border-radius:18px;overflow:hidden;box-shadow:0 14px 50px rgba(0,0,0,0.5);opacity:0}
+.sc-in{
+  padding:26px 22px 20px;
+  background:linear-gradient(145deg,#1a0510 0%,#2d0820 50%,#1a0a00 100%);
+  border:1px solid rgba(255,100,40,0.18);position:relative;text-align:center;
+}
+.sc-in::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse at 25% 75%,rgba(255,80,0,0.13) 0%,transparent 50%),
+             radial-gradient(ellipse at 75% 25%,rgba(238,9,121,0.08) 0%,transparent 50%);
+}
+.sc-emoji{font-size:1.5rem;position:relative}
+.sc-res{font-family:var(--serif);font-size:1.7rem;font-weight:700;background:linear-gradient(90deg,var(--gold),var(--fire1));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;position:relative;letter-spacing:.1em}
+.sc-names{font-family:var(--serif);font-size:.82rem;font-style:italic;color:rgba(255,200,150,.6);position:relative}
+.sc-tag{font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,160,80,.26);margin-top:8px;position:relative}
+
+/* ── Action buttons ── */
+.actions{display:flex;gap:9px;width:100%;max-width:360px;margin:13px auto 0;opacity:0}
+.ab{
+  flex:1;padding:11px 6px;border-radius:11px;border:none;cursor:pointer;
+  font-family:var(--sans);font-size:.72rem;font-weight:500;
+  display:flex;align-items:center;justify-content:center;gap:5px;
+  transition:transform .18s,filter .18s;white-space:nowrap;
+}
+.ab:hover{transform:translateY(-2px);filter:brightness(1.1)}
+.ab:active{transform:scale(0.96)}
+.ab.wa{background:#25D366;color:#fff}
+.ab.dl{background:linear-gradient(135deg,#ff6a00,#ee0979);color:#fff}
+.ab.cp{background:rgba(255,255,255,0.07);color:var(--text);border:1px solid var(--border)}
+
+.again{
+  display:block;margin:15px auto 0;font-size:.74rem;color:var(--muted);
+  cursor:pointer;background:none;border:none;transition:color .2s;
+  font-family:var(--sans);opacity:0;
+}
+.again:hover{color:var(--fire1)}
+
+/* ── Toast ── */
+#toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(10px);
+  background:rgba(22,8,16,.93);border:1px solid var(--border);color:var(--text);
+  padding:8px 20px;border-radius:50px;font-size:.74rem;
+  backdrop-filter:blur(12px);z-index:200;opacity:0;pointer-events:none;
+  transition:all .28s;white-space:nowrap;
+}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@keyframes fadeDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes _shk{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+
+@media(max-width:380px){
+  .card{border-radius:18px}
+  .actions{flex-wrap:wrap}
+  .ab{min-width:46%}
+}
+</style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+
+<!-- Loading overlay -->
+<div id="loading">
+  <div class="ring"><span class="ring-icon">🔥</span></div>
+  <div class="load-txt">Reading your destiny…</div>
+</div>
+
+<!-- Result screen -->
+<div id="result">
+  <div class="rw">
+    <span class="r-emoji" id="rEmoji"></span>
+    <div  class="r-word"  id="rWord"></div>
+    <div  class="r-pair"  id="rPair"></div>
+    <div  class="r-msg"   id="rMsg"></div>
+
+    <div class="wheel-row" id="wheelRow">
+      <div class="wl" data-l="F">F</div>
+      <div class="wl" data-l="L">L</div>
+      <div class="wl" data-l="A">A</div>
+      <div class="wl" data-l="M">M</div>
+      <div class="wl" data-l="E">E</div>
+      <div class="wl" data-l="S">S</div>
+    </div>
+    <div class="w-cap" id="wCap"></div>
+
+    <div class="sc" id="sc">
+      <div class="sc-in" id="scIn">
+        <div class="sc-emoji" id="scEmoji"></div>
+        <div class="sc-res"   id="scRes"></div>
+        <div class="sc-names" id="scNamesEl"></div>
+        <div class="sc-tag">FLAMES · Relationship Destiny</div>
+      </div>
+    </div>
+
+    <div class="actions" id="actionsEl">
+      <button class="ab wa" id="btnWa">💬 WhatsApp</button>
+      <button class="ab dl" id="btnDl">📸 Save</button>
+      <button class="ab cp" id="btnCp">📋 Copy</button>
+    </div>
+    <button class="again" id="btnAgain">↩ Try Again</button>
+  </div>
+</div>
+
+<!-- Main input -->
+<div id="app">
+  <header class="hero">
+    <div class="flames-title">
+      <span>F</span><span>L</span><span>A</span><span>M</span><span>E</span><span>S</span>
+    </div>
+    <p class="tagline">Discover your relationship destiny</p>
+  </header>
+
+  <div class="card">
+    <div class="card-heading">Enter Two Names</div>
+    <div class="field">
+      <label for="n1">Your Name</label>
+      <input type="text" id="n1" placeholder="e.g. Arjun" maxlength="40" autocomplete="off" spellcheck="false"/>
+    </div>
+    <div class="sep">💞</span></div>
+    <div class="field">
+      <label for="n2">Their Name</label>
+      <input type="text" id="n2" placeholder="e.g. Priya" maxlength="40" autocomplete="off" spellcheck="false"/>
+    </div>
+    <button class="cta" id="calcBtn">🔥 Reveal Your FLAMES 🔥</button>
+    <div class="err" id="err"></div>
+    <div class="strip">
+      <div class="sl">F</div><div class="sl">L</div><div class="sl">A</div>
+      <div class="sl">M</div><div class="sl">E</div><div class="sl">S</div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ── Fire Particles ── */
+(function(){
+  const cv=document.getElementById('canvas'),cx=cv.getContext('2d');
+  let W,H,pts=[];
+  function resize(){W=cv.width=innerWidth;H=cv.height=innerHeight;}
+  addEventListener('resize',resize);resize();
+  function mkPt(init){return{x:Math.random()*W,y:init?Math.random()*H:H+10,vx:(Math.random()-.5)*.55,vy:-(0.45+Math.random()*1.35),life:0,max:90+Math.random()*110,r:1.5+Math.random()*3,spark:Math.random()<.45};}
+  const N=Math.min(160,Math.floor(W*H/7000));
+  for(let i=0;i<N;i++)pts.push(mkPt(true));
+  function loop(){
+    cx.clearRect(0,0,W,H);
+    pts.forEach(p=>{
+      p.x+=p.vx+Math.sin(p.life*.08)*.35;p.y+=p.vy;p.vy-=.006;p.life++;
+      if(p.life>p.max||p.y<-20)Object.assign(p,mkPt(false),{life:0});
+      const t=p.life/p.max,a=t<.15?t/.15:t>.7?1-(t-.7)/.3:1;
+      if(p.spark){cx.beginPath();cx.arc(p.x,p.y,p.r*.5,0,Math.PI*2);cx.fillStyle=`rgba(255,200,80,${a*.5})`;cx.fill();}
+      else{cx.beginPath();cx.arc(p.x,p.y,p.r*(1-t*.35),0,Math.PI*2);cx.fillStyle=`rgba(255,${Math.floor(80+(1-t)*110)},0,${a*.65})`;cx.fill();}
+    });
+    requestAnimationFrame(loop);
+  }
+  loop();
+})();
+
+/* ── FLAMES Data ── */
+const DATA={
+  F:{label:'Friends',   emoji:'🤝', glow:'rgba(80,160,255,0.15)',  msg:'A beautiful bond built on trust and laughter. You make each other\'s world brighter every single day.'},
+  L:{label:'Love',      emoji:'❤️', glow:'rgba(255,50,120,0.18)',  msg:'The stars have aligned just for you two. This connection runs deeper than words can ever capture.'},
+  A:{label:'Affection', emoji:'🥰', glow:'rgba(255,150,80,0.16)',  msg:'Warm, caring and wonderfully sweet — you genuinely bring joy into each other\'s days.'},
+  M:{label:'Marriage',  emoji:'💍', glow:'rgba(255,220,80,0.18)',  msg:'Forever together? The universe thinks so. A match truly written in the stars.'},
+  E:{label:'Enemies',   emoji:'⚔️', glow:'rgba(200,50,50,0.18)',   msg:'Even the greatest rivals share electrifying stories. Who knows what sparks might fly?'},
+  S:{label:'Siblings',  emoji:'🫂', glow:'rgba(100,200,120,0.15)', msg:'Like family — always there, occasionally annoying, bonded for a lifetime.'}
+};
+
+/* ── Algorithm ── */
+function norm(s){return s.toLowerCase().replace(/[^a-z]/g,'');}
+
+function countRemaining(a,b){
+  const A=a.split(''),B=b.split('');
+  for(let i=0;i<A.length;i++){const j=B.indexOf(A[i]);if(j!==-1){A[i]=null;B[j]=null;}}
+  return A.filter(Boolean).length+B.filter(Boolean).length;
+}
+
+function calcFlames(n){
+  let f=['F','L','A','M','E','S'],idx=0;
+  while(f.length>1){idx=(idx+n-1)%f.length;f.splice(idx,1);if(idx>=f.length)idx=0;}
+  return f[0];
+}
+
+function elimOrder(n){
+  let f=['F','L','A','M','E','S'],idx=0,out=[];
+  while(f.length>1){idx=(idx+n-1)%f.length;out.push(f[idx]);f.splice(idx,1);if(idx>=f.length)idx=0;}
+  return out;
+}
+
+/* ── Refs ── */
+const n1El    = document.getElementById('n1');
+const n2El    = document.getElementById('n2');
+const calcBtn = document.getElementById('calcBtn');
+const errEl   = document.getElementById('err');
+const loadEl  = document.getElementById('loading');
+const resEl   = document.getElementById('result');
+const rEmojiEl= document.getElementById('rEmoji');
+const rWordEl = document.getElementById('rWord');
+const rPairEl = document.getElementById('rPair');
+const rMsgEl  = document.getElementById('rMsg');
+const wCapEl  = document.getElementById('wCap');
+const scEmoji = document.getElementById('scEmoji');
+const scRes   = document.getElementById('scRes');
+const scNames = document.getElementById('scNamesEl');
+const scEl    = document.getElementById('sc');
+const actEl   = document.getElementById('actionsEl');
+const againEl = document.getElementById('btnAgain');
+
+let S = {}; // global state
+
+/* ── Input events ── */
+[n1El,n2El].forEach(el=>{
+  el.addEventListener('input',()=>errEl.textContent='');
+  el.addEventListener('keydown',e=>{if(e.key==='Enter')go();});
+});
+calcBtn.addEventListener('click',go);
+
+/* ── Main calculation ── */
+function go(){
+  const r1=n1El.value.trim(), r2=n2El.value.trim();
+  if(!r1||!r2){
+    errEl.textContent=!r1&&!r2?'Please enter both names 🔥':!r1?'Enter your name ✨':'Enter their name 💫';
+    if(!r1)shakeEl(n1El);
+    if(!r2)shakeEl(n2El);
+    return;
+  }
+  const a=norm(r1),b=norm(r2);
+  const cnt=countRemaining(a,b)||(a.length+b.length);
+  const winner=calcFlames(cnt);
+  const order=elimOrder(cnt);
+  S={r1,r2,cnt,winner,order,data:DATA[winner]};
+
+  if(navigator.vibrate)navigator.vibrate([30,20,30]);
+  snd('start');
+  loadEl.classList.add('on');
+  calcBtn.disabled=true;
+  setTimeout(()=>{
+    loadEl.classList.remove('on');
+    calcBtn.disabled=false;
+    showResult();
+  },1800);
+}
+
+/* ── Show result ── */
+function showResult(){
+  const {r1,r2,winner,order,data}=S;
+
+  // Set glow
+  resEl.style.setProperty('--glow',data.glow);
+
+  // Populate
+  rEmojiEl.textContent=data.emoji;
+  rWordEl.textContent=data.label.toUpperCase();
+  rPairEl.textContent=`${r1} & ${r2}`;
+  rMsgEl.textContent=data.msg;
+  scEmoji.textContent=data.emoji;
+  scRes.textContent=data.label.toUpperCase();
+  scNames.textContent=`${r1} 🔥 ${r2}`;
+
+  // Reset wheel
+  document.querySelectorAll('.wl').forEach(el=>el.classList.remove('lit','out','win'));
+  wCapEl.textContent='';
+
+  // Reset all animated elements to invisible, remove old anim classes
+  const animEls=[rEmojiEl,rWordEl,rPairEl,rMsgEl,scEl,actEl,againEl];
+  animEls.forEach(el=>{
+    el.classList.remove('anim-pop','anim-slide','anim-fade');
+    el.style.opacity='0';
+    el.style.transform='';
+  });
+
+  // Show screen
+  resEl.classList.add('on');
+  snd('reveal');
+  if(navigator.vibrate)navigator.vibrate([60,40,60,40,80]);
+
+  // Stagger text
+  show(rEmojiEl,'anim-pop',  80);
+  show(rWordEl, 'anim-slide',220);
+  show(rPairEl, 'anim-slide',360);
+  show(rMsgEl,  'anim-fade', 500);
+
+  // Wheel starts after text settles
+  setTimeout(()=>runWheel(order,winner),700);
+
+  // Cards after wheel finishes: 5 eliminations × ~900ms + buffer
+  const wheelDur=700 + order.length*920 + 700;
+  setTimeout(()=>{
+    show(scEl,   'anim-slide',0);
+    show(actEl,  'anim-fade', 120);
+    show(againEl,'anim-fade', 220);
+  },wheelDur);
+}
+
+/* ── Helper: show element with animation ── */
+function show(el,cls,delay){
+  setTimeout(()=>{
+    el.style.opacity='';  // let CSS handle it
+    void el.offsetWidth;  // reflow
+    el.classList.add(cls);
+    // ensure visible after anim ends
+    el.addEventListener('animationend',()=>{el.style.opacity='1';},{once:true});
+  },delay);
+}
+
+/* ── Wheel animation ── */
+function runWheel(order,winner){
+  const wls=Array.from(document.querySelectorAll('.wl'));
+  let remaining=['F','L','A','M','E','S'];
+  let globalPos=0; // position in remaining[] to start counting from each round
+
+  function doStep(i){
+    if(i>=order.length){
+      // Final: highlight winner
+      wls.forEach(l=>l.classList.remove('lit','out'));
+      const winEl=wls.find(l=>l.dataset.l===winner);
+      if(winEl)winEl.classList.add('win');
+      wCapEl.textContent=`✨ ${DATA[winner].label.toUpperCase()} ✨`;
+      return;
+    }
+
+    const target=order[i];
+    const n=S.cnt%remaining.length||remaining.length; // steps to count this round
+    let swept=0;
+    let pos=globalPos;
+
+    function sweep(){
+      // Clear lit (but not out)
+      wls.forEach(l=>{if(!l.classList.contains('out'))l.classList.remove('lit');});
+
+      const letter=remaining[pos%remaining.length];
+      const el=wls.find(l=>l.dataset.l===letter);
+      if(el)el.classList.add('lit');
+      wCapEl.textContent=`Counting… ${swept+1}`;
+      swept++;
+      pos=(pos+1)%remaining.length;
+
+      if(swept<n){
+        // Vary speed: slow at start/end, fast in middle
+        const delay=swept<=2||swept===n-1?170:85;
+        setTimeout(sweep,delay);
+      } else {
+        // Land — make sure target is lit
+        wls.forEach(l=>l.classList.remove('lit'));
+        const tEl=wls.find(l=>l.dataset.l===target);
+        if(tEl)tEl.classList.add('lit');
+        wCapEl.textContent=`❌ ${target} eliminated`;
+
+        setTimeout(()=>{
+          if(tEl){tEl.classList.remove('lit');tEl.classList.add('out');}
+          const ri=remaining.indexOf(target);
+          remaining.splice(ri,1);
+          // Next round starts from the same index (which is now the next letter)
+          globalPos=remaining.length>0?ri%remaining.length:0;
+          setTimeout(()=>doStep(i+1),330);
+        },480);
+      }
+    }
+    sweep();
+  }
+
+  doStep(0);
+}
+
+/* ── Reset ── */
+againEl.addEventListener('click',()=>{
+  resEl.classList.remove('on');
+  n1El.value='';n2El.value='';errEl.textContent='';
+  n1El.focus();
+});
+
+/* ── WhatsApp ── */
+document.getElementById('btnWa').addEventListener('click',()=>{
+  const {r1,r2,data}=S;
+  const t=`🔥 FLAMES says: ${r1} & ${r2} = ${data.label.toUpperCase()} ${data.emoji}\n\n"${data.msg}"`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(t)}`,'_blank');
+});
+
+/* ── Save image ── */
+document.getElementById('btnDl').addEventListener('click',async()=>{
+  const b=document.getElementById('btnDl');
+  b.disabled=true;b.textContent='⏳…';
+  try{
+    if(!window.html2canvas)await loadJs('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+    const c=await html2canvas(document.getElementById('scIn'),{scale:3,backgroundColor:null,logging:false});
+    const a=document.createElement('a');
+    a.download=`flames-${S.r1}-${S.r2}.png`;a.href=c.toDataURL('image/png');a.click();
+    toast('💾 Image saved!');
+  }catch(e){toast('⚠️ Could not save');}
+  b.disabled=false;b.innerHTML='📸 Save';
+});
+
+/* ── Copy ── */
+document.getElementById('btnCp').addEventListener('click',()=>{
+  const {r1,r2,data}=S;
+  navigator.clipboard.writeText(`${r1} & ${r2} = ${data.label.toUpperCase()} ${data.emoji} — "${data.msg}"`)
+    .then(()=>toast('📋 Copied!')).catch(()=>toast('⚠️ Failed'));
+});
+
+/* ── Helpers ── */
+function shakeEl(el){el.style.animation='none';void el.offsetWidth;el.style.animation='_shk .36s ease';setTimeout(()=>el.style.animation='',400);}
+function loadJs(src){return new Promise((ok,fail)=>{const s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=fail;document.head.appendChild(s);});}
+let _tt;
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('on'),2600);}
+
+/* ── Sound ── */
+let _ac;
+function getAC(){if(!_ac)_ac=new(window.AudioContext||window.webkitAudioContext)();return _ac;}
+function tone(f,type,dur,delay,vol){try{const ac=getAC(),o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.type=type;o.frequency.setValueAtTime(f,ac.currentTime+delay);g.gain.setValueAtTime(vol,ac.currentTime+delay);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+delay+dur);o.start(ac.currentTime+delay);o.stop(ac.currentTime+delay+dur);}catch(e){}}
+function snd(t){
+  if(t==='start')[220,330,440].forEach((f,i)=>tone(f,'sine',.15,i*.07,.18));
+  else if(t==='reveal'){
+    [440,554,659,880].forEach((f,i)=>tone(f,'triangle',.22,i*.09,.2));
+    setTimeout(()=>[880,1109,1319].forEach((f,i)=>tone(f,'sine',.18,i*.06,.17)),500);
+  }
+}
+document.addEventListener('click',()=>{try{getAC();}catch(e){}},{once:true});
+</script>
+</body>
+</html>
