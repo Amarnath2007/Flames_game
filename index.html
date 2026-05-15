@@ -4,6 +4,20 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>FLAMES — Relationship Destiny</title>
+<meta name="description" content="Discover your relationship destiny with the classic FLAMES game. Modern aesthetic, smooth animations, and instant results."/>
+
+<!-- OpenGraph / Facebook -->
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://flames-game.vercel.app/"/>
+<meta property="og:title" content="FLAMES — Relationship Destiny"/>
+<meta property="og:description" content="Discover your relationship destiny with the classic FLAMES game."/>
+<meta property="og:image" content="https://flames-game.vercel.app/og-image.png"/>
+
+<!-- Twitter -->
+<meta property="twitter:card" content="summary_large_image"/>
+<meta property="twitter:title" content="FLAMES — Relationship Destiny"/>
+<meta property="twitter:description" content="Discover your relationship destiny with the classic FLAMES game."/>
+
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;0,700;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
@@ -18,7 +32,7 @@
   --sans:'DM Sans',sans-serif;--serif:'Cormorant Garamond',serif;
 }
 
-html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);overflow-x:hidden}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);overflow-x:hidden;scroll-behavior:smooth}
 
 #canvas{position:fixed;inset:0;pointer-events:none;z-index:0}
 
@@ -221,7 +235,7 @@ body::before{
 .sc-in::before{
   content:'';position:absolute;inset:0;pointer-events:none;
   background:radial-gradient(ellipse at 25% 75%,rgba(255,80,0,0.13) 0%,transparent 50%),
-             radial-gradient(ellipse at 75% 25%,rgba(238,9,121,0.08) 0%,transparent 50%);
+              radial-gradient(ellipse at 75% 25%,rgba(238,9,121,0.08) 0%,transparent 50%);
 }
 .sc-emoji{font-size:1.5rem;position:relative}
 .sc-res{font-family:var(--serif);font-size:1.7rem;font-weight:700;background:linear-gradient(90deg,var(--gold),var(--fire1));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;position:relative;letter-spacing:.1em}
@@ -263,6 +277,18 @@ body::before{
 @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 @keyframes _shk{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
 
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-delay: -1ms !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    background-attachment: initial !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+  }
+}
+
 @media(max-width:380px){
   .card{border-radius:18px}
   .actions{flex-wrap:wrap}
@@ -274,20 +300,43 @@ body::before{
 
 <canvas id="canvas"></canvas>
 
-<!-- Loading overlay -->
-<div id="loading">
+<main id="app">
+  <header class="hero">
+    <div class="flames-title">
+      <span>F</span><span>L</span><span>A</span><span>M</span><span>E</span><span>S</span>
+    </div>
+    <p class="tagline">Discover your relationship destiny</p>
+  </header>
+
+  <div class="card">
+    <h2 class="card-heading">Enter Two Names</h2>
+    <div class="field">
+      <label for="n1">Your Name</label>
+      <input type="text" id="n1" placeholder="e.g. Arjun" maxlength="40" autocomplete="off" spellcheck="false"/>
+    </div>
+    <div class="sep">💞</div>
+    <div class="field">
+      <label for="n2">Their Name</label>
+      <input type="text" id="n2" placeholder="e.g. Priya" maxlength="40" autocomplete="off" spellcheck="false"/>
+    </div>
+    <button class="cta" id="calcBtn">🔥 Reveal Your FLAMES 🔥</button>
+    <div class="err" id="err"></div>
+    <div class="strip">
+      <div class="sl">F</div><div class="sl">L</div><div class="sl">A</div>
+      <div class="sl">M</div><div class="sl">E</div><div class="sl">S</div>
+    </div>
+  </div>
+</main>
+
+<div id="loading" aria-hidden="true">
   <div class="ring"><span class="ring-icon">🔥</span></div>
   <div class="load-txt">Reading your destiny…</div>
 </div>
 
-<!-- Result screen -->
-<div id="result">
+<div id="result" aria-hidden="true">
   <div class="rw">
-    <span class="r-emoji" id="rEmoji"></span>
-    <div  class="r-word"  id="rWord"></div>
-    <div  class="r-pair"  id="rPair"></div>
-    <div  class="r-msg"   id="rMsg"></div>
-
+    <div class="r-pair" id="rPair"></div>
+    
     <div class="wheel-row" id="wheelRow">
       <div class="wl" data-l="F">F</div>
       <div class="wl" data-l="L">L</div>
@@ -297,6 +346,10 @@ body::before{
       <div class="wl" data-l="S">S</div>
     </div>
     <div class="w-cap" id="wCap"></div>
+
+    <span class="r-emoji" id="rEmoji"></span>
+    <div  class="r-word"  id="rWord"></div>
+    <div  class="r-msg"   id="rMsg"></div>
 
     <div class="sc" id="sc">
       <div class="sc-in" id="scIn">
@@ -316,47 +369,24 @@ body::before{
   </div>
 </div>
 
-<!-- Main input -->
-<div id="app">
-  <header class="hero">
-    <div class="flames-title">
-      <span>F</span><span>L</span><span>A</span><span>M</span><span>E</span><span>S</span>
-    </div>
-    <p class="tagline">Discover your relationship destiny</p>
-  </header>
-
-  <div class="card">
-    <div class="card-heading">Enter Two Names</div>
-    <div class="field">
-      <label for="n1">Your Name</label>
-      <input type="text" id="n1" placeholder="e.g. Arjun" maxlength="40" autocomplete="off" spellcheck="false"/>
-    </div>
-    <div class="sep">💞</span></div>
-    <div class="field">
-      <label for="n2">Their Name</label>
-      <input type="text" id="n2" placeholder="e.g. Priya" maxlength="40" autocomplete="off" spellcheck="false"/>
-    </div>
-    <button class="cta" id="calcBtn">🔥 Reveal Your FLAMES 🔥</button>
-    <div class="err" id="err"></div>
-    <div class="strip">
-      <div class="sl">F</div><div class="sl">L</div><div class="sl">A</div>
-      <div class="sl">M</div><div class="sl">E</div><div class="sl">S</div>
-    </div>
-  </div>
-</div>
-
-<div id="toast"></div>
+<div id="toast" role="alert"></div>
 
 <script>
 /* ── Fire Particles ── */
 (function(){
   const cv=document.getElementById('canvas'),cx=cv.getContext('2d');
   let W,H,pts=[];
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(prefersReducedMotion) return;
+
   function resize(){W=cv.width=innerWidth;H=cv.height=innerHeight;}
   addEventListener('resize',resize);resize();
   function mkPt(init){return{x:Math.random()*W,y:init?Math.random()*H:H+10,vx:(Math.random()-.5)*.55,vy:-(0.45+Math.random()*1.35),life:0,max:90+Math.random()*110,r:1.5+Math.random()*3,spark:Math.random()<.45};}
-  const N=Math.min(160,Math.floor(W*H/7000));
+  
+  const particleDensity = W < 768 ? 10000 : 7000;
+  const N=Math.min(160,Math.floor(W*H/particleDensity));
   for(let i=0;i<N;i++)pts.push(mkPt(true));
+  
   function loop(){
     cx.clearRect(0,0,W,H);
     pts.forEach(p=>{
@@ -448,9 +478,11 @@ function go(){
   if(navigator.vibrate)navigator.vibrate([30,20,30]);
   snd('start');
   loadEl.classList.add('on');
+  loadEl.setAttribute('aria-hidden','false');
   calcBtn.disabled=true;
   setTimeout(()=>{
     loadEl.classList.remove('on');
+    loadEl.setAttribute('aria-hidden','true');
     calcBtn.disabled=false;
     showResult();
   },1800);
@@ -476,44 +508,42 @@ function showResult(){
   document.querySelectorAll('.wl').forEach(el=>el.classList.remove('lit','out','win'));
   wCapEl.textContent='';
 
-  // Reset all animated elements to invisible, remove old anim classes
+  // Reset all animated elements to invisible
   const animEls=[rEmojiEl,rWordEl,rPairEl,rMsgEl,scEl,actEl,againEl];
   animEls.forEach(el=>{
     el.classList.remove('anim-pop','anim-slide','anim-fade');
     el.style.opacity='0';
-    el.style.transform='';
   });
 
   // Show screen
   resEl.classList.add('on');
+  resEl.setAttribute('aria-hidden','false');
   snd('reveal');
   if(navigator.vibrate)navigator.vibrate([60,40,60,40,80]);
 
-  // Stagger text
+  // Initial animation: Pair Name and Wheel only
+  show(rPairEl, 'anim-slide', 100);
+
+  // Start wheel
+  setTimeout(()=>runWheel(order,winner),700);
+}
+
+/* ── Final Reveal: Triggered after wheel lands ── */
+function finalReveal(){
   show(rEmojiEl,'anim-pop',  80);
   show(rWordEl, 'anim-slide',220);
-  show(rPairEl, 'anim-slide',360);
-  show(rMsgEl,  'anim-fade', 500);
-
-  // Wheel starts after text settles
-  setTimeout(()=>runWheel(order,winner),700);
-
-  // Cards after wheel finishes: 5 eliminations × ~900ms + buffer
-  const wheelDur=700 + order.length*920 + 700;
-  setTimeout(()=>{
-    show(scEl,   'anim-slide',0);
-    show(actEl,  'anim-fade', 120);
-    show(againEl,'anim-fade', 220);
-  },wheelDur);
+  show(rMsgEl,  'anim-fade', 360);
+  show(scEl,    'anim-slide',500);
+  show(actEl,   'anim-fade', 620);
+  show(againEl, 'anim-fade', 720);
 }
 
 /* ── Helper: show element with animation ── */
 function show(el,cls,delay){
   setTimeout(()=>{
-    el.style.opacity='';  // let CSS handle it
-    void el.offsetWidth;  // reflow
+    el.style.opacity='';  
+    void el.offsetWidth;  
     el.classList.add(cls);
-    // ensure visible after anim ends
     el.addEventListener('animationend',()=>{el.style.opacity='1';},{once:true});
   },delay);
 }
@@ -522,27 +552,27 @@ function show(el,cls,delay){
 function runWheel(order,winner){
   const wls=Array.from(document.querySelectorAll('.wl'));
   let remaining=['F','L','A','M','E','S'];
-  let globalPos=0; // position in remaining[] to start counting from each round
+  let globalPos=0; 
 
   function doStep(i){
     if(i>=order.length){
-      // Final: highlight winner
       wls.forEach(l=>l.classList.remove('lit','out'));
       const winEl=wls.find(l=>l.dataset.l===winner);
       if(winEl)winEl.classList.add('win');
       wCapEl.textContent=`✨ ${DATA[winner].label.toUpperCase()} ✨`;
+      
+      // TRIGGER REVEAL HERE
+      setTimeout(finalReveal, 600);
       return;
     }
 
     const target=order[i];
-    const n=S.cnt%remaining.length||remaining.length; // steps to count this round
+    const n=S.cnt%remaining.length||remaining.length; 
     let swept=0;
     let pos=globalPos;
 
     function sweep(){
-      // Clear lit (but not out)
       wls.forEach(l=>{if(!l.classList.contains('out'))l.classList.remove('lit');});
-
       const letter=remaining[pos%remaining.length];
       const el=wls.find(l=>l.dataset.l===letter);
       if(el)el.classList.add('lit');
@@ -551,11 +581,9 @@ function runWheel(order,winner){
       pos=(pos+1)%remaining.length;
 
       if(swept<n){
-        // Vary speed: slow at start/end, fast in middle
         const delay=swept<=2||swept===n-1?170:85;
         setTimeout(sweep,delay);
       } else {
-        // Land — make sure target is lit
         wls.forEach(l=>l.classList.remove('lit'));
         const tEl=wls.find(l=>l.dataset.l===target);
         if(tEl)tEl.classList.add('lit');
@@ -565,7 +593,6 @@ function runWheel(order,winner){
           if(tEl){tEl.classList.remove('lit');tEl.classList.add('out');}
           const ri=remaining.indexOf(target);
           remaining.splice(ri,1);
-          // Next round starts from the same index (which is now the next letter)
           globalPos=remaining.length>0?ri%remaining.length:0;
           setTimeout(()=>doStep(i+1),330);
         },480);
@@ -573,13 +600,13 @@ function runWheel(order,winner){
     }
     sweep();
   }
-
   doStep(0);
 }
 
 /* ── Reset ── */
 againEl.addEventListener('click',()=>{
   resEl.classList.remove('on');
+  resEl.setAttribute('aria-hidden','true');
   n1El.value='';n2El.value='';errEl.textContent='';
   n1El.focus();
 });
