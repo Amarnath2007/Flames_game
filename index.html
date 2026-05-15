@@ -35,12 +35,12 @@
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;0,700;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;0,700;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
   
-  <!-- Optimized Styles -->
+  <!-- Optimized Styles (Minified) -->
   <link rel="stylesheet" href="css/style.min.css">
 </head>
 <body>
 
-  <!-- Optimized Background -->
+  <!-- Optimized Background (Hidden from A11y) -->
   <canvas id="canvas" aria-hidden="true"></canvas>
 
   <!-- Main Content -->
@@ -106,7 +106,6 @@
       <h2 class="r-word" id="rWord"></h2>
       <p class="r-msg" id="rMsg"></p>
 
-      <!-- Share Card (Hidden from screen readers as it's for visual export) -->
       <div class="sc" id="sc" aria-hidden="true">
         <div class="sc-in" id="scIn">
           <div class="sc-emoji" id="scEmoji"></div>
@@ -134,11 +133,10 @@
     </div>
   </div>
 
-  <!-- Accessible Toast -->
   <div id="toast" role="status" aria-live="polite"></div>
 
-  <!-- Deferred Scripts -->
-  <script src="js/particles.js" defer></script>
-  <script src="js/app.js" defer></script>
+  <!-- Deferred & Minified Scripts -->
+  <script src="js/particles.min.js" defer></script>
+  <script src="js/app.min.js" defer></script>
 </body>
 </html>
